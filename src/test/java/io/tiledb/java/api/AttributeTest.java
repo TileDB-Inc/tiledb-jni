@@ -26,7 +26,6 @@ package io.tiledb.java.api;
 
 import static io.tiledb.java.api.Constants.TILEDB_VAR_NUM;
 
-import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,8 +68,8 @@ public class AttributeTest {
       a.setFillValue(5);
 
       Assert.assertEquals(5, a.getFillValue().getFirst());
-      Assert.assertEquals(
-          BigInteger.valueOf(a.getType().getNativeSize()), a.getFillValue().getSecond());
+
+      Assert.assertEquals(a.getType().getNativeSize(), (int) (long) a.getFillValue().getSecond());
     }
 
     try (Context ctx = new Context();
@@ -79,8 +78,7 @@ public class AttributeTest {
       a.setFillValue(5L);
 
       Assert.assertEquals(5L, a.getFillValue().getFirst());
-      Assert.assertEquals(
-          BigInteger.valueOf(a.getType().getNativeSize()), a.getFillValue().getSecond());
+      Assert.assertEquals(a.getType().getNativeSize(), (int) (long) a.getFillValue().getSecond());
     }
 
     try (Context ctx = new Context();
@@ -90,7 +88,59 @@ public class AttributeTest {
 
       Assert.assertEquals((byte) 'c', a.getFillValue().getFirst());
       Assert.assertEquals(
-          BigInteger.valueOf(a.getType().getNativeSize()), a.getFillValue().getSecond());
+          (int) (long) a.getType().getNativeSize(), (int) (long) a.getFillValue().getSecond());
+    }
+
+    try (Context ctx = new Context();
+        Attribute a = new Attribute(ctx, "a2", Datatype.TILEDB_CHAR)) {
+
+      a.setFillValue((byte) 'c');
+
+      Assert.assertEquals((byte) 'c', a.getFillValue().getFirst());
+      Assert.assertEquals(a.getType().getNativeSize(), (int) (long) a.getFillValue().getSecond());
+    }
+
+    try (Context ctx = new Context();
+        Attribute a = new Attribute(ctx, "a2", Datatype.TILEDB_STRING_ASCII)) {
+      a.setCellVar();
+
+      String str = "abcdef";
+      a.setFillValue(str);
+
+      Assert.assertEquals(str, new String((byte[]) a.getFillValue().getFirst()));
+      Assert.assertEquals(str.length(), (int) (long) a.getFillValue().getSecond());
+    }
+
+    try (Context ctx = new Context();
+        Attribute a = new Attribute(ctx, "a2", Datatype.TILEDB_INT32)) {
+
+      a.setCellValNum(2);
+
+      int[] arr = new int[] {1, 2};
+      a.setFillValue(arr);
+
+      Assert.assertArrayEquals(arr, (int[]) a.getFillValue().getFirst());
+      Assert.assertEquals(
+          arr.length * a.getType().getNativeSize(), (int) (long) a.getFillValue().getSecond());
+    }
+  }
+
+  @Test
+  public void testAttributeSetFillValueVarSize() throws Exception {
+    try (Context ctx = new Context();
+        Attribute a = new Attribute(ctx, "a2", Datatype.TILEDB_INT32)) {
+
+      a.setCellValNum(2);
+
+      int[] arr = new int[] {1, 2};
+
+      a.setFillValue(arr);
+      Assert.assertArrayEquals(arr, (int[]) a.getFillValue().getFirst());
+
+      a.setCellVar();
+
+      a.setFillValue(arr);
+      Assert.assertArrayEquals(arr, (int[]) a.getFillValue().getFirst());
     }
   }
 
@@ -105,8 +155,8 @@ public class AttributeTest {
 
       Assert.assertEquals(5, a.getFillValueNullable().getFirst());
       Assert.assertEquals(
-          BigInteger.valueOf(a.getType().getNativeSize()),
-          a.getFillValueNullable().getSecond().getFirst());
+          a.getType().getNativeSize(),
+          (int) (long) a.getFillValueNullable().getSecond().getFirst());
 
       Assert.assertEquals(true, a.getFillValueNullable().getSecond().getSecond());
     }
@@ -120,8 +170,8 @@ public class AttributeTest {
 
       Assert.assertEquals(5L, a.getFillValueNullable().getFirst());
       Assert.assertEquals(
-          BigInteger.valueOf(a.getType().getNativeSize()),
-          a.getFillValueNullable().getSecond().getFirst());
+          a.getType().getNativeSize(),
+          (int) (long) a.getFillValueNullable().getSecond().getFirst());
 
       Assert.assertEquals(false, a.getFillValueNullable().getSecond().getSecond());
     }
@@ -135,10 +185,62 @@ public class AttributeTest {
 
       Assert.assertEquals((byte) 'c', a.getFillValueNullable().getFirst());
       Assert.assertEquals(
-          BigInteger.valueOf(a.getType().getNativeSize()),
-          a.getFillValueNullable().getSecond().getFirst());
+          a.getType().getNativeSize(),
+          (int) (long) a.getFillValueNullable().getSecond().getFirst());
 
       Assert.assertEquals(false, a.getFillValueNullable().getSecond().getSecond());
+    }
+
+    try (Context ctx = new Context();
+        Attribute a = new Attribute(ctx, "a2", Datatype.TILEDB_STRING_ASCII)) {
+      a.setNullable(true);
+      a.setCellVar();
+
+      String str = "abcdef";
+      a.setFillValueNullable(str, true);
+
+      Assert.assertEquals(str, new String((byte[]) a.getFillValueNullable().getFirst()));
+      Assert.assertEquals(
+          str.length(), (int) (long) a.getFillValueNullable().getSecond().getFirst());
+    }
+
+    try (Context ctx = new Context();
+        Attribute a = new Attribute(ctx, "a2", Datatype.TILEDB_INT32)) {
+      a.setNullable(true);
+
+      a.setCellValNum(2);
+
+      int[] arr = new int[] {1, 2};
+      a.setFillValueNullable(arr, true);
+
+      Assert.assertArrayEquals(arr, (int[]) a.getFillValueNullable().getFirst());
+      Assert.assertEquals(
+          arr.length * a.getType().getNativeSize(),
+          (long) (int) a.getFillValueNullable().getSecond().getFirst());
+
+      a.setCellVar();
+
+      a.setFillValueNullable(arr, true);
+
+      Assert.assertArrayEquals(arr, (int[]) a.getFillValueNullable().getFirst());
+      Assert.assertEquals(
+          arr.length * a.getType().getNativeSize(),
+          (long) (int) a.getFillValueNullable().getSecond().getFirst());
+    }
+  }
+
+  @Test
+  public void testAttributeSetFillValueNullableVarSize() throws Exception {
+    try (Context ctx = new Context();
+        Attribute a = new Attribute(ctx, "a2", Datatype.TILEDB_INT32)) {
+      a.setNullable(true);
+
+      a.setCellValNum(2);
+
+      int[] arr = new int[] {1, 2};
+      a.setFillValueNullable(arr, true);
+
+      Assert.assertArrayEquals(arr, (int[]) a.getFillValueNullable().getFirst());
     }
   }
 

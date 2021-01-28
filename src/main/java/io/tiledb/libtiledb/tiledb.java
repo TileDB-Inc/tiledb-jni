@@ -604,6 +604,11 @@ public class tiledb implements tiledbConstants {
     return (cPtr == 0) ? null : new SWIGTYPE_p_p_tiledb_ctx_t(cPtr, false);
   }
 
+  public static SWIGTYPE_p_p_tiledb_fragment_info_t new_tiledb_fragment_info_tpp() {
+    long cPtr = tiledbJNI.new_tiledb_fragment_info_tpp();
+    return (cPtr == 0) ? null : new SWIGTYPE_p_p_tiledb_fragment_info_t(cPtr, false);
+  }
+
   public static void delete_tiledb_ctx_tpp(SWIGTYPE_p_p_tiledb_ctx_t obj) {
     tiledbJNI.delete_tiledb_ctx_tpp(SWIGTYPE_p_p_tiledb_ctx_t.getCPtr(obj));
   }
@@ -617,6 +622,13 @@ public class tiledb implements tiledbConstants {
   public static SWIGTYPE_p_tiledb_ctx_t tiledb_ctx_tpp_value(SWIGTYPE_p_p_tiledb_ctx_t obj) {
     long cPtr = tiledbJNI.tiledb_ctx_tpp_value(SWIGTYPE_p_p_tiledb_ctx_t.getCPtr(obj));
     return (cPtr == 0) ? null : new SWIGTYPE_p_tiledb_ctx_t(cPtr, false);
+  }
+
+  public static SWIGTYPE_p_tiledb_fragment_info_t tiledb_fragment_info_tpp_value(
+      SWIGTYPE_p_p_tiledb_fragment_info_t obj) {
+    long cPtr =
+        tiledbJNI.tiledb_fragment_info_tpp_value(SWIGTYPE_p_p_tiledb_fragment_info_t.getCPtr(obj));
+    return (cPtr == 0) ? null : new SWIGTYPE_p_tiledb_fragment_info_t(cPtr, false);
   }
 
   public static SWIGTYPE_p_p_tiledb_error_t new_tiledb_error_tpp() {

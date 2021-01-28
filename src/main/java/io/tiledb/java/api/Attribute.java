@@ -27,6 +27,7 @@ package io.tiledb.java.api;
 import static io.tiledb.java.api.Constants.TILEDB_VAR_NUM;
 
 import io.tiledb.libtiledb.*;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
 
 /**
@@ -295,16 +296,23 @@ public class Attribute implements AutoCloseable {
    * @throws TileDBError
    */
   public void setFillValue(Object value) throws TileDBError {
-    NativeArray array = new NativeArray(ctx, this.type.getNativeSize(), this.type.javaClass());
-    array.setItem(0, value);
+    int byteSize;
+    NativeArray array;
+
+    if (value.getClass().isArray()) {
+      byteSize = Array.getLength(value) * this.type.getNativeSize();
+      array = new NativeArray(ctx, value, this.type.javaClass());
+    } else {
+      if (value instanceof String) byteSize = ((String) value).length();
+      else byteSize = this.type.getNativeSize();
+      array = new NativeArray(ctx, byteSize, this.type.javaClass());
+      array.setItem(0, value);
+    }
 
     try {
       ctx.handleError(
           tiledb.tiledb_attribute_set_fill_value(
-              ctx.getCtxp(),
-              attributep,
-              array.toVoidPointer(),
-              BigInteger.valueOf(this.type.getNativeSize())));
+              ctx.getCtxp(), attributep, array.toVoidPointer(), BigInteger.valueOf(byteSize)));
     } catch (TileDBError err) {
       throw err;
     }
@@ -321,20 +329,25 @@ public class Attribute implements AutoCloseable {
    * @return A pair with the fill value and its size
    * @throws TileDBError
    */
-  public Pair<Object, Long> getFillValue() throws TileDBError {
+  public Pair<Object, Integer> getFillValue() throws TileDBError {
 
     try (NativeArray value = new NativeArray(ctx, this.type.getNativeSize(), this.type)) {
       SWIGTYPE_p_unsigned_long_long size = tiledb.new_ullp();
       SWIGTYPE_p_p_void v = tiledb.new_voidpArray(1);
 
       ctx.handleError(tiledb.tiledb_attribute_get_fill_value(ctx.getCtxp(), attributep, v, size));
+      int byteSize = tiledb.ullp_value(size).intValue();
+      int numElements = byteSize / this.type.getNativeSize();
 
       Object fillValue;
-      try (NativeArray fillValueArray = new NativeArray(ctx, getType(), v, 1)) {
-        fillValue = fillValueArray.getItem(0);
+      try (NativeArray fillValueArray = new NativeArray(ctx, getType(), v, numElements)) {
+        if (this.isVar() || this.getCellValNum() > 1)
+          fillValue = fillValueArray.toJavaArray(numElements);
+        else fillValue = fillValueArray.getItem(0);
       }
 
-      return new Pair(fillValue, tiledb.ullp_value(size));
+      return new Pair(fillValue, byteSize);
+
     } catch (TileDBError err) {
       throw err;
     }
@@ -378,17 +391,26 @@ public class Attribute implements AutoCloseable {
    * @throws TileDBError
    */
   public void setFillValueNullable(Object value, boolean valid) throws TileDBError {
+    int byteSize;
+    NativeArray array;
 
-    NativeArray valueArray = new NativeArray(ctx, this.type.getNativeSize(), this.type.javaClass());
-    valueArray.setItem(0, value);
+    if (value.getClass().isArray()) {
+      byteSize = Array.getLength(value) * this.type.getNativeSize();
+      array = new NativeArray(ctx, value, this.type.javaClass());
+    } else {
+      if (value instanceof String) byteSize = ((String) value).length();
+      else byteSize = this.type.getNativeSize();
+      array = new NativeArray(ctx, byteSize, this.type.javaClass());
+      array.setItem(0, value);
+    }
 
     try {
       ctx.handleError(
           tiledb.tiledb_attribute_set_fill_value_nullable(
               ctx.getCtxp(),
               attributep,
-              valueArray.toVoidPointer(),
-              BigInteger.valueOf(this.type.getNativeSize()),
+              array.toVoidPointer(),
+              BigInteger.valueOf(byteSize),
               valid ? (short) 1 : (short) 0));
     } catch (TileDBError err) {
       throw err;
@@ -407,7 +429,7 @@ public class Attribute implements AutoCloseable {
    *     Pair(5, Pair(4, true))
    * @throws TileDBError
    */
-  public Pair<Object, Pair<Long, Boolean>> getFillValueNullable() throws TileDBError {
+  public Pair<Object, Pair<Integer, Boolean>> getFillValueNullable() throws TileDBError {
 
     try (NativeArray value = new NativeArray(ctx, this.type.getNativeSize(), this.type)) {
       NativeArray validArr = new NativeArray(ctx, 1, Datatype.TILEDB_UINT8);
@@ -419,14 +441,19 @@ public class Attribute implements AutoCloseable {
           tiledb.tiledb_attribute_get_fill_value_nullable(
               ctx.getCtxp(), attributep, v, size, valid));
 
+      int byteSize = tiledb.ullp_value(size).intValue();
+      int numElements = byteSize / this.type.getNativeSize();
+
       Object fillValue;
-      try (NativeArray fillValueArray = new NativeArray(ctx, getType(), v, 1)) {
-        fillValue = fillValueArray.getItem(0);
+      try (NativeArray fillValueArray = new NativeArray(ctx, getType(), v, numElements)) {
+        if (this.isVar() || this.getCellValNum() > 1)
+          fillValue = fillValueArray.toJavaArray(numElements);
+        else fillValue = fillValueArray.getItem(0);
       }
 
       boolean validBoolean = validArr.getUint8_tArray().getitem(0) == 0 ? false : true;
 
-      return new Pair(fillValue, new Pair(tiledb.ullp_value(size), validBoolean));
+      return new Pair(fillValue, new Pair(byteSize, validBoolean));
     } catch (TileDBError err) {
       throw err;
     }

@@ -19,7 +19,7 @@ import org.junit.Test;
 public class FragmentInfoTest {
 
   private Context ctx;
-  private String arrayURI = "fragments_consolidation";
+  private String arrayURI = "array";
 
   @Before
   public void setup() throws Exception {
@@ -171,7 +171,6 @@ public class FragmentInfoTest {
   }
 
   public void createDenseArray() throws Exception {
-
     // Create getDimensions
     Dimension<Integer> rows = new Dimension<Integer>(ctx, "rows", Integer.class, new Pair(1, 4), 2);
     Dimension<Integer> cols = new Dimension<Integer>(ctx, "cols", Integer.class, new Pair(1, 4), 2);

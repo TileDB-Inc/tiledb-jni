@@ -51,6 +51,48 @@ public class FragmentInfo {
   }
 
   /**
+   * Retrieves the non-empty domain range sizes from a fragment for a given dimension index.
+   * Applicable to var-sized dimensions.
+   *
+   * @param fragmentID The fragment ID
+   * @param dimensionID The dimension name
+   * @return The non-empty domain range sizes from a fragment for a given dimension index.
+   * @throws TileDBError
+   */
+  public Pair<Long, Long> getNonEmptyDomainVarSizeFromIndex(long fragmentID, long dimensionID)
+      throws TileDBError {
+    SWIGTYPE_p_unsigned_long_long startSize = tiledb.new_ullp();
+    SWIGTYPE_p_unsigned_long_long endSize = tiledb.new_ullp();
+
+    ctx.handleError(
+        tiledb.tiledb_fragment_info_get_non_empty_domain_var_size_from_index(
+            ctx.getCtxp(), fragmentInfop, fragmentID, dimensionID, startSize, endSize));
+    return new Pair(
+        tiledb.ullp_value(startSize).longValue(), tiledb.ullp_value(endSize).longValue());
+  }
+
+  /**
+   * Retrieves the non-empty domain range sizes from a fragment for a given dimension name.
+   * Applicable to var-sized dimensions.
+   *
+   * @param fragmentID The fragment ID
+   * @param dimensionName The dimension name
+   * @return The non-empty domain range sizes from a fragment for a given dimension name
+   * @throws TileDBError
+   */
+  public Pair<Long, Long> getNonEmptyDomainVarSizeFromName(long fragmentID, String dimensionName)
+      throws TileDBError {
+    SWIGTYPE_p_unsigned_long_long startSize = tiledb.new_ullp();
+    SWIGTYPE_p_unsigned_long_long endSize = tiledb.new_ullp();
+
+    ctx.handleError(
+        tiledb.tiledb_fragment_info_get_non_empty_domain_var_size_from_name(
+            ctx.getCtxp(), fragmentInfop, fragmentID, dimensionName, startSize, endSize));
+    return new Pair(
+        tiledb.ullp_value(startSize).longValue(), tiledb.ullp_value(endSize).longValue());
+  }
+
+  /**
    * Returns the number of fragments.
    *
    * @return The number of fragments

@@ -170,6 +170,47 @@ public class FragmentInfoTest {
     }
   }
 
+  @Test
+  public void TestFragmentInfoVarSizesOnly() throws Exception {
+
+    int testFragmentCount = 10;
+    createSparseVarDimArray();
+
+    // Write fragments
+    for (int i = 0; i < testFragmentCount; ++i) writeSparseVarDimArray();
+
+    FragmentInfo info = new FragmentInfo(ctx, arrayURI);
+
+    long numFragments = info.getFragmentNum();
+
+    for (int i = 0; i < numFragments; ++i) {
+
+      Array arr = new Array(ctx, arrayURI);
+      Domain domain = arr.getSchema().getDomain();
+      for (int dim = 0; dim < domain.getNDim(); ++dim) {
+        Dimension dimension = domain.getDimension(dim);
+
+        Pair p = info.getNonEmptyDomainVarSizeFromIndex(i, dim);
+
+        Assert.assertEquals(
+            new String((byte[]) p.getFirst()),
+            arr.nonEmptyDomain().get(dimension.getName()).getFirst());
+        Assert.assertEquals(
+            new String((byte[]) p.getSecond()),
+            arr.nonEmptyDomain().get(dimension.getName()).getSecond());
+
+        p = info.getNonEmptyDomainVarSizeFromName(i, dimension.getName());
+
+        Assert.assertEquals(
+            new String((byte[]) p.getFirst()),
+            arr.nonEmptyDomain().get(dimension.getName()).getFirst());
+        Assert.assertEquals(
+            new String((byte[]) p.getSecond()),
+            arr.nonEmptyDomain().get(dimension.getName()).getSecond());
+      }
+    }
+  }
+
   public void createDenseArray() throws Exception {
     // Create getDimensions
     Dimension<Integer> rows = new Dimension<Integer>(ctx, "rows", Integer.class, new Pair(1, 4), 2);

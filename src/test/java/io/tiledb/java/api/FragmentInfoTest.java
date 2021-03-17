@@ -193,20 +193,18 @@ public class FragmentInfoTest {
         Pair p = info.getNonEmptyDomainVarSizeFromIndex(i, dim);
 
         Assert.assertEquals(
-            new String((byte[]) p.getFirst()),
-            arr.nonEmptyDomain().get(dimension.getName()).getFirst());
+            p.getFirst(), arr.getNonEmptyDomainVarSizeFromIndex(dim).getFirst().longValue());
         Assert.assertEquals(
-            new String((byte[]) p.getSecond()),
-            arr.nonEmptyDomain().get(dimension.getName()).getSecond());
+            p.getSecond(), arr.getNonEmptyDomainVarSizeFromIndex(dim).getSecond().longValue());
 
         p = info.getNonEmptyDomainVarSizeFromName(i, dimension.getName());
 
         Assert.assertEquals(
-            new String((byte[]) p.getFirst()),
-            arr.nonEmptyDomain().get(dimension.getName()).getFirst());
+            p.getFirst(),
+            arr.getNonEmptyDomainVarSizeFromName(dimension.getName()).getFirst().longValue());
         Assert.assertEquals(
-            new String((byte[]) p.getSecond()),
-            arr.nonEmptyDomain().get(dimension.getName()).getSecond());
+            p.getSecond(),
+            arr.getNonEmptyDomainVarSizeFromName(dimension.getName()).getSecond().longValue());
       }
     }
   }

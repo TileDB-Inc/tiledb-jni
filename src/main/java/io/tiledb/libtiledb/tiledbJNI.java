@@ -461,15 +461,11 @@ public class tiledbJNI {
 
   public static final native long copy_tiledb_ctx_tpp(long jarg1);
 
-  public static final native long new_tiledb_fragment_info_tpp();
-
   public static final native void delete_tiledb_ctx_tpp(long jarg1);
 
   public static final native void tiledb_ctx_tpp_assign(long jarg1, long jarg2);
 
   public static final native long tiledb_ctx_tpp_value(long jarg1);
-
-  public static final native long tiledb_fragment_info_tpp_value(long jarg1);
 
   public static final native long new_tiledb_error_tpp();
 
@@ -570,6 +566,16 @@ public class tiledbJNI {
   public static final native void tiledb_vfs_fh_tpp_assign(long jarg1, long jarg2);
 
   public static final native long tiledb_vfs_fh_tpp_value(long jarg1);
+
+  public static final native long new_tiledb_fragment_info_tpp();
+
+  public static final native long copy_tiledb_fragment_info_tpp(long jarg1);
+
+  public static final native void delete_tiledb_fragment_info_tpp(long jarg1);
+
+  public static final native void tiledb_fragment_info_tpp_assign(long jarg1, long jarg2);
+
+  public static final native long tiledb_fragment_info_tpp_value(long jarg1);
 
   public static final native int sizeOfInt32();
 

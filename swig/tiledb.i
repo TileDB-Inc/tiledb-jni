@@ -99,6 +99,7 @@ import java.nio.ByteBuffer;
 %pointer_functions(tiledb_filter_list_t*, tiledb_filter_list_tpp);
 %pointer_functions(tiledb_vfs_t*, tiledb_vfs_tpp);
 %pointer_functions(tiledb_vfs_fh_t*, tiledb_vfs_fh_tpp);
+%pointer_functions(tiledb_fragment_info_t*, tiledb_fragment_info_tpp);
 
 %native (sizeOfInt32) int sizeOfInt32();
 %native (sizeOfInt64) int sizeOfInt64();
